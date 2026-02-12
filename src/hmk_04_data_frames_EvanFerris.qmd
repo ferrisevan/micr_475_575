@@ -43,15 +43,34 @@ Make a plot of **air time vs distance** (air time on the y-axis, distance on the
 ## Your code
 
 ```{r}
-# Filter flights according to the criteria above,
-# then make the required plot.
+flights
+View(flights)
+glimpse(flights)
+library(dplyr)
+library(ggplot2)
+lga_flights <- flights %>%
+  filter(
+    origin == "LGA",
+    day == 16,
+    distance < 2000,
+    !is.na(air_time),
+    !is.na(distance)
+  )
+ggplot(lga_flights, aes(x = distance, y = air_time)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Air Time vs Distance for Flights from LGA (Day 16)",
+    x = "Distance",
+    y = "Air Time"
+  ) +
+  theme_minimal()
 ```
 
 ## Brief written response
 
 In 2–4 sentences, describe what you observe in the plot. (For example: Is the relationship roughly linear? Are there any clear outliers?)
 
-**Your answer here:**
+**Your answer here: Air time increases as distance increases in a mostly linear way. The points cluster by route, with a few flights taking slightly longer than expected.**
 
 ------------------------------------------------------------------------
 
@@ -63,7 +82,8 @@ Make a data frame of all rows of `flights` that have values for *both* `arr_time
 
 ```{r}
 # Create a new data frame that removes rows where arr_time or dep_time is NA.
-
+flights_times <- flights %>%
+  filter(!is.na(arr_time), !is.na(dep_time))
 ```
 
 ## Filtering NAs (conceptual)
@@ -74,7 +94,7 @@ Make a data frame of all rows of `flights` that have values for *both* `arr_time
 
 Explain (in words) how you could prevent those `NA` values from appearing in the plot in the first place.
 
-**Your answer here:**
+**Your answer here:** You can prevent NA values from appearing in the plot by removing them from the data before plotting. This can be done by filtering out rows where the relevant variables are NA, so ggplot never sees those missing values and does not need to drop them automatically.
 
 ------------------------------------------------------------------------
 
@@ -95,14 +115,24 @@ If you like, you may break the data out (e.g., by airline or another variable) i
 # Create a new column for average speed.
 # (Hint: think carefully about units — air_time is in minutes.)
 # Then make a histogram or density plot.
-
+flight_speeds <- flights %>%
+  filter(!is.na(air_time), !is.na(distance), air_time > 0) %>%
+  mutate(avg_speed = distance / (air_time / 60))
+ggplot(flight_speeds, aes(x = avg_speed)) +
+  geom_histogram(bins = 50) +
+  labs(
+    title = "Average Flight Speeds",
+    x = "Average Speed (miles per hour)",
+    y = "Count"
+  ) +
+  theme_minimal()
 ```
 
 ## Brief written response
 
 Describe the main features of your speed distribution.
 
-**Your answer here:**
+**Your answer here:** The distribution has a single clear peak and most flights are clustered around 400–450 miles per hour. There are fewer very slow or very fast flights, hence the thin tails on both ends.
 
 ------------------------------------------------------------------------
 
